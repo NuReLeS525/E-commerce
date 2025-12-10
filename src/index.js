@@ -10,10 +10,9 @@ import {
   Home,
   Product,
   Products,
-  AboutPage,
-  ContactPage,
   Cart,
   Login,
+  OtpVerification,
   Register,
   Checkout,
   PageNotFound,
@@ -30,10 +29,9 @@ root.render(
           <Route path="/" element={<Home />} />
           <Route path="/product" element={<Products />} />
           <Route path="/product/:id" element={<Product />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/verification" element={<OtpVerification />} />
           <Route path="/register" element={<Register />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="*" element={<PageNotFound />} />
