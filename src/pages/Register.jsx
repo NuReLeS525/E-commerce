@@ -1,6 +1,7 @@
 import React from 'react'
 import { useAuthStore } from "../store/useAuthStore";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 import { Footer, Navbar } from "../components";
 import { Link } from 'react-router-dom';
@@ -8,6 +9,7 @@ import { Link } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -28,8 +30,10 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const success = validateForm();
-    if (success === true) register(formData);
+    if (validateForm()) {
+      register(formData);
+      navigate('/Login')
+    };
   };
   
   return (

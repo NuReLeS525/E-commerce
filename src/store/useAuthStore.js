@@ -1,12 +1,6 @@
 import { create } from "zustand";
-import axios from "../lib/axios";
+import apiPublic from "../lib/apiPublic";
 import toast from "react-hot-toast";
-
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -21,7 +15,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingIn: true });
 
     try {
-      await axios.post("/login", data);
+      await apiPublic.post("/login", data);
 
       set({
         needOtp: true,
@@ -44,7 +38,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const username = get().tempUsername;
 
-      const res = await axios.post("/login/otp", {
+      const res = await apiPublic.post("/login/otp", {
         username,
         otp,
       });
@@ -58,8 +52,10 @@ export const useAuthStore = create((set, get) => ({
       });
 
       toast.success("Logged in successfully!");
+      return true;
     } catch (err) {
       toast.error(err.response?.data?.message || "Invalid OTP");
+      return false;
     } finally {
       set({ isVerifyingOtp: false });
     }
@@ -69,7 +65,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isRegistering: true });
 
     try {
-      await axios.post("/register", data);
+      await apiPublic.post("/register", data);
       toast.success("Account created! Now login.");
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");

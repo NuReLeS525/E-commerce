@@ -1,10 +1,12 @@
 import React from "react";
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import { Footer, Navbar } from "../components";
+
+import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,10 +17,19 @@ const Login = () => {
 
   const { login, isLoggingIn } = useAuthStore();
 
+  const validateForm = () => {
+    if (!formData.username.trim()) return toast.error("Name is required");
+    if (!formData.password) return toast.error("Password is required");
+    if (formData.password.length < 8)
+      return toast.error("Password must be at least 8 characters");
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await login(formData);
-    if (success) navigate("/verification");
+    if (success && validateForm()) navigate("/verification");
   };
 
   return (
