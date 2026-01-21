@@ -1,41 +1,64 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { addCart } from "../redux/action";
 
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useProductStore } from "../store/useProductStore";
+import { useAuthStore } from "../store/useAuthStore";
 
-const Products = () => {
-  const [data, setData] = useState([]);
-  const [filter, setFilter] = useState(data);
-  const [loading, setLoading] = useState(false);
-  let componentMounted = true;
+const Products = ({ hideFilter, externalCategory }) => {
+  const { products, isLoadingProducts, getProducts } = useProductStore();
+  const { isAuthenticated } = useAuthStore();
+  const [filter, setFilter] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("all");
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const addProduct = (product) => {
-    dispatch(addCart(product));
+  const filterProduct = (cat) => {
+    if (cat === "all") {
+      setFilter(products);
+    } else {
+      const updatedList = products.filter((item) => item.category === cat);
+      setFilter(updatedList);
+    }
+    setActiveCategory(cat);
   };
 
   useEffect(() => {
-    const getProducts = async () => {
-      setLoading(true);
-      const response = await fetch("https://fakestoreapi.com/products/");
-      if (componentMounted) {
-        setData(await response.clone().json());
-        setFilter(await response.json());
-        setLoading(false);
-      }
+    if (externalCategory) {
+      filterProduct(externalCategory);
+    }
+  }, [externalCategory, products]);
 
-      return () => {
-        componentMounted = false;
-      };
-    };
+  const handleFilter = (category) => {
+    if (activeCategory === category) {
+      filterProduct("all");
+    } else {
+      filterProduct(category);
+    }
+  };
 
-    getProducts();
+  const addProduct = (product) => {
+    if (!isAuthenticated) {
+      toast.error("Please login to add items to cart");
+      navigate("/login");
+      return;
+    }
+    dispatch(addCart(product));
+    toast.success("Added to cart"); 
+  };
+
+  useEffect(() => {
+    if (products.length === 0) {
+      getProducts();
+    } else {
+      setFilter(products);
+    }
   }, []);
 
   const Loading = () => {
@@ -44,67 +67,42 @@ const Products = () => {
         <div className="col-12 py-5 text-center">
           <Skeleton height={40} width={560} />
         </div>
-        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-          <Skeleton height={592} />
-        </div>
-        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-          <Skeleton height={592} />
-        </div>
-        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-          <Skeleton height={592} />
-        </div>
-        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-          <Skeleton height={592} />
-        </div>
-        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-          <Skeleton height={592} />
-        </div>
-        <div className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4">
-          <Skeleton height={592} />
-        </div>
+        {[1, 2, 3, 4, 5, 6].map((n) => (
+          <div className="col-md-3 col-sm-6 col-12 mb-4" key={n}>
+            <Skeleton height={400} />
+          </div>
+        ))}
       </>
     );
-  };
-
-  const filterProduct = (cat) => {
-    const updatedList = data.filter((item) => item.category === cat);
-    setFilter(updatedList);
   };
 
   const ShowProducts = () => {
     return (
       <>
-        <div className="buttons text-center py-5">
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => setFilter(data)}
-          >
-            All
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("men's clothing")}
-          >
-            Men's Clothing
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("women's clothing")}
-          >
-            Women's Clothing
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("jewelery")}
-          >
-            Jewelery
-          </button>
-          <button
-            className="btn btn-outline-dark btn-sm m-2"
-            onClick={() => filterProduct("electronics")}
-          >
-            Electronics
-          </button>
+        <div
+          className={`align-items-center justify-content-between ${
+            hideFilter ? "d-none" : "d-flex"
+          }`}
+        >
+          <div className="buttons py-5">
+            {(() => {
+              const categories = [...new Set(products.map(p => p.category))].filter(Boolean);
+              return categories.map((cat) => (
+                <button
+                  key={cat}
+                  className={`btn btn-sm m-2 ${
+                    activeCategory === cat ? "btn-dark" : "btn-outline-dark"
+                  }`}
+                  onClick={() => handleFilter(cat)}
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              ));
+            })()}
+          </div>
+          <Link className="btn btn-outline-success btn-sm m-2" to="/product">
+            See all
+          </Link>
         </div>
 
         {filter.map((product) => {
@@ -112,44 +110,56 @@ const Products = () => {
             <div
               id={product.id}
               key={product.id}
-              className="col-md-4 col-sm-6 col-xs-8 col-12 mb-4"
+              className="col-md-3 col-sm-6 col-12 mb-4"
+              style={{ transition: "transform 0.2s" }}
             >
-              <div className="card text-center h-100" key={product.id}>
+              <div
+                className="bg-light rounded-3 overflow-hidden"
+                style={{ height: "240px" }}
+              >
                 <img
-                  className="card-img-top p-3"
+                  className="w-100 h-100 p-4"
                   src={product.image}
-                  alt="Card"
-                  height={300}
+                  alt={product.title}
+                  style={{ objectFit: "contain" }}
                 />
-                <div className="card-body">
-                  <h5 className="card-title">
-                    {product.title.substring(0, 12)}...
-                  </h5>
-                  <p className="card-text">
-                    {product.description.substring(0, 90)}...
-                  </p>
-                </div>
-                <ul className="list-group list-group-flush">
-                  <li className="list-group-item lead">$ {product.price}</li>
-                  {/* <li className="list-group-item">Dapibus ac facilisis in</li>
-                    <li className="list-group-item">Vestibulum at eros</li> */}
-                </ul>
-                <div className="card-body">
-                  <Link
-                    to={"/product/" + product.id}
-                    className="btn btn-dark m-1"
+              </div>
+
+              <div className="card-body px-1 py-3 text-start">
+                <div className="d-flex justify-content-between align-items-baseline mb-1">
+                  <h6
+                    className="card-title fw-bold mb-0 text-truncate"
+                    style={{ maxWidth: "70%" }}
                   >
-                    Buy Now
-                  </Link>
+                    {product.title}
+                  </h6>
+                  <span className="fw-light text-muted">${product.price}</span>
+                </div>
+
+                <p
+                  className="card-text small text-secondary mb-3"
+                  style={{
+                    minHeight: "50px",
+                    maxHeight: "50px",
+                    overflow: "hidden",
+                  }}
+                >
+                  {product.description.substring(0, 60)}...
+                </p>
+
+                <div className="d-grid gap-2">
                   <button
-                    className="btn btn-dark m-1"
-                    onClick={() => {
-                      toast.success("Added to cart");
-                      addProduct(product);
-                    }}
+                    className="btn btn-outline-dark btn-sm rounded-pill"
+                    onClick={() => addProduct(product)}
                   >
                     Add to Cart
                   </button>
+                  <Link
+                    to={"/product/" + product.id}
+                    className="btn btn-link btn-sm text-decoration-none text-dark"
+                  >
+                    View Details
+                  </Link>
                 </div>
               </div>
             </div>
@@ -158,20 +168,13 @@ const Products = () => {
       </>
     );
   };
+
   return (
-    <>
-      <div className="container my-3 py-3">
-        <div className="row">
-          <div className="col-12">
-            <h2 className="display-5 text-center">Latest Products</h2>
-            <hr />
-          </div>
-        </div>
-        <div className="row justify-content-center">
-          {loading ? <Loading /> : <ShowProducts />}
-        </div>
+    <div className="container">
+      <div className="row justify-content-center">
+        {isLoadingProducts ? <Loading /> : <ShowProducts />}
       </div>
-    </>
+    </div>
   );
 };
 

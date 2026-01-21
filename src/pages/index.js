@@ -6,4 +6,6 @@ export { default as Login } from './Login';
 export { default as OtpVerification } from "./OtpVerification";
 export { default as Register } from './Register';
 export { default as Checkout } from './Checkout';
+export { default as Profile } from './Profile';
+export { default as AdminDashboard } from './AdminDashboard';
 export { default as PageNotFound } from './PageNotFound';

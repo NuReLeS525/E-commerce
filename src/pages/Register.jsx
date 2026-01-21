@@ -1,115 +1,169 @@
-import React from 'react'
-import { useAuthStore } from "../store/useAuthStore";
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate, Link } from "react-router-dom";
 import { Footer, Navbar } from "../components";
-import { Link } from 'react-router-dom';
-
 import toast from "react-hot-toast";
 
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: "",
+    fullName: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
-
-  const { register, isRegistering } = useAuthStore();
+  const { traderRegister, isRegistering } = useAuthStore();
 
   const validateForm = () => {
-    if (!formData.username.trim()) return toast.error("Name is required");
-    if (!formData.email.trim()) return toast.error("Email is required");
-    if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
-    if (!formData.password) return toast.error("Password is required");
-    if (formData.password.length < 8) return toast.error("Password must be at least 8 characters");
+    if (!formData.fullName.trim()) {
+      toast.error("Full Name is required");
+      return false;
+    }
+
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return false;
+    }
+
+    if (!formData.password) {
+      toast.error("Password is required");
+      return false;
+    }
+
+    if (formData.password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return false;
+    }
+
+    if (!formData.confirmPassword) {
+      toast.error("Please confirm password");
+      return false;
+    }
+
+    if (!(formData.password === formData.confirmPassword)) {
+      toast.error("Passwords do not match");
+      return false;
+    }
 
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      register(formData);
-      navigate('/Login')
-    };
+    if (!validateForm()) return;
+    
+    const success = await traderRegister(formData);
+    if (success) {
+      navigate("/login");
+    }
   };
-  
+
   return (
     <>
       <Navbar />
-      <div className="container my-5">
-        <h1 className="text-center">Register</h1>
-        <div className="row my-4 h-100">
-          <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
-            <form onSubmit={handleSubmit}>
-              <div className="form my-3">
-                <label for="Name">Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="username"
-                  value={formData.username}
-                  placeholder="Enter Your Name"
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                />
-              </div>
-              <div className="form my-3">
-                <label for="Email">Email address</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="Email"
-                  value={formData.email}
-                  placeholder="name@example.com"
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </div>
-              <div className="form  my-3">
-                <label for="Password">Password</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="Password"
-                  value={formData.password}
-                  placeholder="Password"
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
-              </div>
-              <div className="my-3">
-                <p>
-                  Already has an account?{" "}
-                  <Link
-                    to="/login"
-                    className="text-decoration-underline text-info"
+      <div
+        className="d-flex align-items-center justify-content-center"
+        style={{ minHeight: "80vh" }}
+      >
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-10 col-sm-8 col-md-6 col-lg-4 mx-auto border rounded p-4 shadow-sm">
+              <h1 className="text-center mb-4">Trader Registration</h1>
+              <p className="text-center text-muted">
+                Create your trader account
+              </p>
+              <form onSubmit={handleSubmit}>
+                <div className="form my-3">
+                  <label htmlFor="fullName">Full Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="fullName"
+                    value={formData.fullName}
+                    placeholder="Enter Full Name"
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullName: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form my-3">
+                  <label htmlFor="Email">Email address</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="Email"
+                    value={formData.email}
+                    placeholder="name@example.com"
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form my-3">
+                  <label htmlFor="Password">Password (min 8 characters)</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="Password"
+                    value={formData.password}
+                    placeholder="Password"
+                    minLength={8}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form my-3">
+                  <label htmlFor="confirmPassword">Confirm Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="confirmPassword"
+                    value={formData.confirmPassword}
+                    placeholder="Confirm Password"
+                    minLength={8}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="text-center">
+                  <button
+                    className="my-2 w-100 btn btn-dark"
+                    type="submit"
+                    disabled={isRegistering}
                   >
-                    Login
-                  </Link>{" "}
-                </p>
-              </div>
-              <div className="text-center">
-                <button
-                  className="my-2 w-100 btn btn-dark"
-                  type="submit"
-                  disabled={isRegistering}
-                >
-                  Register
-                </button>
-              </div>
-            </form>
+                    {isRegistering ? "Registering..." : "Register"}
+                  </button>
+                </div>
+                <div className="my-3 d-flex justify-content-center">
+                  <p>
+                    Already have an account?{" "}
+                    <Link
+                      to="/login"
+                      className="text-decoration-underline text-info"
+                    >
+                      Login
+                    </Link>
+                  </p>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
       <Footer />
     </>
   );
-}
+};
 
-export default Register
+export default Register;
