@@ -59,7 +59,7 @@ const Products = ({ hideFilter, externalCategory }) => {
     } else {
       setFilter(products);
     }
-  }, []);
+  }, [products, getProducts]);
 
   const Loading = () => {
     return (

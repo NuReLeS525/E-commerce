@@ -12,7 +12,6 @@ const ProductsPage = () => {
     }
   }, []);
 
-  // Get unique categories from products
   const categories = [
     { name: "All Products", value: "all" },
     ...[...new Set(products.map((p) => p.category))]

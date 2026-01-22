@@ -11,7 +11,7 @@ const Login = () => {
 
   const validateForm = () => {
     if (!formData.username.trim()) {
-      toast.error("Username is required");
+      toast.error("Email is required");
       return false;
     }
 
@@ -49,11 +49,11 @@ const Login = () => {
               <h1 className="text-center mb-4">Login</h1>
               <form onSubmit={handleSubmit}>
                 <div className="my-3">
-                  <label>Username</label>
+                  <label>Email</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Username"
+                    placeholder="name@exmaple.com"
                     value={formData.username}
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value })

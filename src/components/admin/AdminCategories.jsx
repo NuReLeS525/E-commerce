@@ -16,8 +16,6 @@ const AdminCategories = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [form, setForm] = useState({ name: "" });
 
-  console.log(categories);
-
   const resetForm = () => {
     setForm({ name: "" });
     setEditingCategory(null);
