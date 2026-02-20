@@ -1,5 +1,6 @@
 // src/api/config/axios.ts
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import process from 'process';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
