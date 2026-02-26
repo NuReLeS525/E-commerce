@@ -22,11 +22,35 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      // Токен протух — можно сделать refresh
-      console.log('Токен истёк, нужно перелогиниться');
-      // Здесь логика refresh token
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Пытаемся обновить токен
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          const response = await axios.post(`${API_URL}/auth/refresh`, {
+            refreshToken
+          });
+          
+          if (response.data.accessToken) {
+            localStorage.setItem('accessToken', response.data.accessToken);
+            originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+            return apiClient(originalRequest);
+          }
+        }
+      } catch (refreshError) {
+        console.log('Refresh token failed');
+      }
+      
+      // Если не получилось обновить - на логин
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      window.location.href = '/login';
     }
+    
     return Promise.reject(error);
   }
 );
