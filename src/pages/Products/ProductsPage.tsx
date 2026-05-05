@@ -1,9 +1,8 @@
+import React from 'react';
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
-import BasicTableOne from "../../components/tables/BasicTables/BasicTableOne";
-import CouriersTable from "../../components/tables/CouriersTable";
-
+import ProductsTable from "../../components/tables/ProductsTable";
 
 export default function BasicTables() {
   return (
@@ -16,7 +15,7 @@ export default function BasicTables() {
       <div className="space-y-6">
         <ComponentCard title="Basic Table 1">
           {/* <BasicTableOne /> */}
-          <CouriersTable />
+          <ProductsTable />
         </ComponentCard>
       </div>
     </>

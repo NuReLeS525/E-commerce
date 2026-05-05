@@ -49,7 +49,13 @@ const navItems: NavItem[] = [
   {
     name: "Tables",
     icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    subItems: [
+      { name: "Couriers Tables", path: "/basic-tables", pro: false },
+      { name: "Products Tables", path: "/products", pro: false },
+      { name: "Orders Tables", path: "/orders", pro: false }, 
+      { name: "Pending Traders", path: "/traders/pending", pro: false }, 
+      { name: "Categories Table", path: "/categories", pro: true },
+    ],
   },
   {
     name: "Pages",

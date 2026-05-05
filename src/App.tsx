@@ -18,6 +18,10 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import ProductsPage from "./pages/Products/ProductsPage";
+import OrdersPage from "./pages/Orders/OrdersPage";
+import PendingTradersPage from "./pages/Traders/PendingTradersPage";
+import CategoriesPage from "./pages/Categories/CategoriesPage";
 
 export default function App() {
   return (
@@ -39,6 +43,10 @@ export default function App() {
 
             {/* Tables */}
             <Route path="/basic-tables" element={<BasicTables />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/traders/pending" element={<PendingTradersPage />} />
+            <Route path="/categories" element={<CategoriesPage />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />
